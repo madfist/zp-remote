@@ -10,8 +10,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:labelFor="@id/text_host"
-            android:text="@string/input_host"/>
+            android:text="@string/input_host"
+            android:labelFor="@+id/text_host" />
         <EditText
             android:id="@+id/text_host"
             android:inputType="text"
@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/input_port"
-            android:labelFor="@id/text_port"/>
+            android:labelFor="@+id/text_port" />
         <EditText
             android:id="@+id/text_port"
             android:inputType="number"
@@ -37,4 +37,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_connect" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/button_app_name"
+            android:text="@string/button_app_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/button_version"
+            android:text="@string/button_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <TextView
+        android:id="@+id/text_response"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>

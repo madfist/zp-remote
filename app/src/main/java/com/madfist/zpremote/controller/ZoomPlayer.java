@@ -1,5 +1,7 @@
 package com.madfist.zpremote.controller;
 
+import android.util.Log;
+
 /**
  * Created by akoleszar on 2017.10.02..
  */
@@ -8,6 +10,7 @@ public class ZoomPlayer {
     private Connector connector;
     private String host = null;
     private int port = -1;
+    private final static String TAG = "ZoomPlayer";
 
     public ZoomPlayer() {
         connector = new Connector();
@@ -25,8 +28,14 @@ public class ZoomPlayer {
 
     public void resume() {
         if (host != null && port != -1) {
+            Log.d(TAG, "resume() - " + host + ":" + port);
             connector.connect(host, port);
         }
+    }
+
+    public void destroy() {
+        host = null;
+        port = -1;
     }
 
     public String getApplicationName() {

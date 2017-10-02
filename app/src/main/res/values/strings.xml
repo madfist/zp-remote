@@ -3,4 +3,6 @@
     <string name="input_host">Host</string>
     <string name="input_port">Port</string>
     <string name="button_connect">Connect</string>
+    <string name="button_app_name">AppName</string>
+    <string name="button_version">Version</string>
 </resources>
