@@ -147,8 +147,8 @@ public class Connector {
         pool.execute(new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, "executeStringCommand(" + MessageCode.get(command) + ")");
-                writer.println(MessageCode.get(command) + arguments);
+                Log.d(TAG, "executeCommand(" + MessageCode.get(command) + arguments + ")");
+                writer.print(MessageCode.get(command) + arguments + "\r\n");
                 writer.flush();
             }
         });

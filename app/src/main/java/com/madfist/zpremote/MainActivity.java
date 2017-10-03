@@ -24,8 +24,13 @@ public class MainActivity extends Activity {
         zoomPlayer = new ZoomPlayer(new Connector.Callback() {
             @Override
             public void onConnected() {
-                TextView connectionText = findViewById(R.id.text_connection);
-                connectionText.setText(R.string.text_connected);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        TextView connectionText = findViewById(R.id.text_connection);
+                        connectionText.setText(R.string.text_connected);
+                    }
+                });
                 zoomPlayerConnected = true;
             }
 
