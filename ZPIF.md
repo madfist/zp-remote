@@ -128,7 +128,9 @@ Code|Event|Description
 6130|Number of Schedule Entries set   | The message contains the number of schedule items set. Items with invalid path or characters will be rejected.
 6140|Current schedule pause state     | 0 - Do not pause when nothing is scheduled<br>1 - Pause if nothing is scheduled (default)
 6150|Current schedule hide UI state   | 0 - Do not hide the user interface when the schedule has ended.<br>1 - Hide the user interface when the schedule has ended.
-9000|Flash Mouse Click                | Used to indicate a screen position was clicked if when interactive flash mode is enabled.<br>## External Messages
+9000|Flash Mouse Click                | Used to indicate a screen position was clicked if when interactive flash mode is enabled.
+
+## External Messages
 Messages that contain parameters should be space separated, for example: `5100 fnPlay`
 
 A comma used to separate multiple parameters,  for example: `5110 exSetAR,1`.
