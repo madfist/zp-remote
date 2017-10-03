@@ -4,8 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ZpRemote.iml" filepath="$PROJECT_DIR$/ZpRemote.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/zp-remote.iml" filepath="$PROJECT_DIR$/zp-remote.iml" />
     </modules>
   </component>
 </project>

@@ -12,8 +12,8 @@ public class ZoomPlayer {
     private int port = -1;
     private final static String TAG = "ZoomPlayer";
 
-    public ZoomPlayer() {
-        connector = new Connector();
+    public ZoomPlayer(Connector.Callback cb) {
+        connector = new Connector(cb);
     }
 
     public void start(String host, int port) {
@@ -38,11 +38,27 @@ public class ZoomPlayer {
         port = -1;
     }
 
-    public String getApplicationName() {
-        return connector.executeStringCommand(Connector.MessageCode.GET_APPLICATION_NAME);
+    public void playPause() {
+        connector.executeFunctionCommand(MessageCode.CALL_ZP_FUNCTION, "fnPlay");
     }
 
-    public String getVersion() {
-        return connector.executeStringCommand(Connector.MessageCode.GET_VERSION);
+    public void showHideControlBar() {
+        connector.executeFunctionCommand(MessageCode.CALL_ZP_FUNCTION, "fnBar");
+    }
+
+    public void showHideFileNavigator() {
+        connector.executeFunctionCommand(MessageCode.CALL_ZP_FUNCTION, "fnFileNav");
+    }
+
+    public void navigatorUp() {
+        connector.executeFunctionCommand(MessageCode.CALL_ZP_NVFUCNTION, "nvUp");
+    }
+
+    public void navigatorDown() {
+        connector.executeFunctionCommand(MessageCode.CALL_ZP_NVFUCNTION, "nvDown");
+    }
+
+    public void navigatorSelect() {
+        connector.executeFunctionCommand(MessageCode.CALL_ZP_NVFUCNTION, "nvSelect");
     }
 }
