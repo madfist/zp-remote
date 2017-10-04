@@ -72,10 +72,11 @@ public class ZoomPlayer {
 
     public void fullscreen() {
         executeZpFunction("fnFullScreen");
+        connector.executeCommand(MessageCode.GET_FULLSCREEN_STATE, null);
     }
 
     public void seek(int seconds) {
-        executeZpExFunction("exSeekTo", Integer.toString(seconds));
+        executeZpExFunction("exSeekTo," + Integer.toString(seconds));
     }
 
     public void showHideControlBar() {
@@ -102,8 +103,8 @@ public class ZoomPlayer {
         connector.executeCommand(MessageCode.CALL_ZP_FUNCTION, getFunctionCalledChecker(function), function);
     }
 
-    private void executeZpExFunction(String ... functionAndParams) {
-        connector.executeCommand(MessageCode.CALL_ZP_EXFUNCTION, getFunctionCalledChecker(functionAndParams[0]), functionAndParams);
+    private void executeZpExFunction(String function) {
+        connector.executeCommand(MessageCode.CALL_ZP_EXFUNCTION, getFunctionCalledChecker(function), function);
     }
 
     private void executeZpNavFunction(String function) {

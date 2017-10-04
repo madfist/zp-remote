@@ -20,6 +20,8 @@ public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
     private ZoomPlayer zoomPlayer;
     private boolean userSeeking = false;
+    private String host;
+    private int port;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,14 +34,22 @@ public class MainActivity extends Activity {
         zoomPlayer.setPlayStateListener(playStateListener);
         zoomPlayer.setFullscreenStateListener(fullscreenStateListener);
 
+        if (savedInstanceState != null) {
+            Log.d(TAG, "onCreate() - savedInstance");
+            EditText hostEditText = findViewById(R.id.text_host);
+            hostEditText.setText(savedInstanceState.getString("host"));
+            EditText portEditText = findViewById(R.id.text_port);
+            portEditText.setText(savedInstanceState.getInt("port"));
+        }
+
         Button connectButton = findViewById(R.id.button_connect);
         connectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EditText hostEditText = findViewById(R.id.text_host);
-                String host = hostEditText.getText().toString();
+                host = hostEditText.getText().toString();
                 EditText portEditText = findViewById(R.id.text_port);
-                int port = Integer.parseInt(portEditText.getText().toString());
+                port = Integer.parseInt(portEditText.getText().toString());
                 zoomPlayer.start(host, port);
             }
         });
@@ -140,6 +150,14 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.d(TAG, "onSaveInstanceState");
+        super.onSaveInstanceState(outState);
+        outState.putString("host", host);
+        outState.putInt("port", port);
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         zoomPlayer.onPause();
@@ -205,6 +223,7 @@ public class MainActivity extends Activity {
     private MessageListener filenameListener = new MessageListener(MessageListener.KEEP) {
         @Override
         public void onMessageReceived(String msg) {
+            Log.d(TAG, "filenameListener: " + msg);
             final String filename = msg.substring(msg.lastIndexOf('\\') + 1);
             runOnUiThread(new Runnable() {
                 @Override
@@ -219,6 +238,7 @@ public class MainActivity extends Activity {
     private MessageListener positionListener = new MessageListener(MessageListener.KEEP) {
         @Override
         public void onMessageReceived(final String msg) {
+            Log.d(TAG, "positionListener: " + msg);
             if (userSeeking) {
                 return;
             }
@@ -244,6 +264,7 @@ public class MainActivity extends Activity {
     private MessageListener playStateListener = new MessageListener(MessageListener.KEEP) {
         @Override
         public void onMessageReceived(String msg) {
+            Log.d(TAG, "playStateListener: " + msg);
             final int state = Integer.parseInt(msg);
             runOnUiThread(new Runnable() {
                 @Override
@@ -267,6 +288,7 @@ public class MainActivity extends Activity {
     private MessageListener fullscreenStateListener = new MessageListener(MessageListener.KEEP) {
         @Override
         public void onMessageReceived(String msg) {
+            Log.d(TAG, "fullscreenStateListener: " + msg);
             final boolean fullscreen = msg.equals("1");
             runOnUiThread(new Runnable() {
                 @Override

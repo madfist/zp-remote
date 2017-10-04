@@ -199,7 +199,13 @@ public final class MessageCode {
 
     public static int timeInSeconds(String timeString) {
         String[] units = timeString.split(":");
-        return Integer.parseInt(units[0]) * 3600 + Integer.parseInt(units[1]) * 60 + Integer.parseInt(units[2]);
+        if (units.length == 3) {
+            return Integer.parseInt(units[0]) * 3600 + Integer.parseInt(units[1]) * 60 + Integer.parseInt(units[2]);
+        } else if (units.length == 2) {
+            return Integer.parseInt(units[0]) * 60 + Integer.parseInt(units[1]);
+        } else {
+            return Integer.parseInt(units[0]);
+        }
     }
 
     public static String secondsToTime(int seconds) {

@@ -49,9 +49,9 @@ public class Connector {
                     listening = true;
                     reader = new Scanner(socket.getInputStream());
                     writer = new PrintWriter(socket.getOutputStream());
+                    connected = true;
                     listen();
                     callback.onConnected(true);
-                    connected = true;
                 } catch (IOException e) {
                     callback.onError(CANNOT_CONNECT);
                     Log.e(TAG, "connect() failed - " + e.getMessage());
