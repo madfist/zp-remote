@@ -17,31 +17,27 @@ import java.util.concurrent.Executors;
 
 public class Connector {
     public interface Callback {
-        void onConnected();
-        void onDisconnected();
+        void onConnected(boolean state);
+        void onError(int errorCode);
         void onMessageReceived(String msg);
     }
-    public interface StringCallback {
-        void onStringReceived(String msg);
-    }
-    public interface NumberCallback {
-        void onNumberReceived(int num);
-    }
+
     private Socket socket;
     private Scanner reader;
     private PrintWriter writer;
     private ExecutorService pool = Executors.newCachedThreadPool();
     private static final String TAG = "Connector";
-    private boolean listening = false;
-    private SparseArray<StringCallback> stringCallbacks;
-    private SparseArray<NumberCallback> numberCallbacks;
+    private volatile boolean listening = false;
+    private boolean connected = false;
+    private SparseArray<MessageListener> listeners;
     private Callback callback;
+
+    public static final int CANNOT_CONNECT = 1;
 
     public Connector(Callback cb) {
         callback = cb;
         socket = new Socket();
-        stringCallbacks = new SparseArray<>();
-        numberCallbacks = new SparseArray<>();
+        listeners = new SparseArray<>();
     }
 
     public void connect(final String address, final int port) {
@@ -54,9 +50,12 @@ public class Connector {
                     reader = new Scanner(socket.getInputStream());
                     writer = new PrintWriter(socket.getOutputStream());
                     listen();
-                    callback.onConnected();
+                    callback.onConnected(true);
+                    connected = true;
                 } catch (IOException e) {
+                    callback.onError(CANNOT_CONNECT);
                     Log.e(TAG, "connect() failed - " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
         });
@@ -71,7 +70,8 @@ public class Connector {
                     reader.close();
                     writer.close();
                     socket.close();
-                    callback.onDisconnected();
+                    callback.onConnected(false);
+                    connected = false;
                 } catch (IOException e) {
                     Log.e(TAG, "disconnect() failed - " + e.getMessage());
                 }
@@ -80,6 +80,9 @@ public class Connector {
     }
 
     public void listen() {
+        if (!connected) {
+            return;
+        }
         pool.submit(new Runnable() {
             @Override
             public void run() {
@@ -87,14 +90,12 @@ public class Connector {
                     if (reader.hasNextLine()) {
                         String message = reader.nextLine();
                         int messageCode = MessageCode.parse(message.substring(0,4));
-                        StringCallback cb = stringCallbacks.get(messageCode);
-                        NumberCallback ncb = numberCallbacks.get(messageCode);
-                        if (cb != null) {
-                            cb.onStringReceived(message.substring(5));
-                            stringCallbacks.remove(messageCode);
-                        } else if (ncb != null) {
-                            ncb.onNumberReceived(Integer.parseInt(message.substring(5)));
-                            numberCallbacks.remove(messageCode);
+                        MessageListener ml = listeners.get(messageCode);
+                        if (ml != null) {
+                            ml.onMessageReceived(message.substring(5));
+                            if (!ml.keep) {
+                                listeners.remove(messageCode);
+                            }
                         } else {
                             callback.onMessageReceived(message);
                         }
@@ -104,45 +105,11 @@ public class Connector {
         });
     }
 
-    public void executeStringCommand(int command, StringCallback cb) {
-        stringCallbacks.put(command, cb);
-        executeCommand(command);
-    }
-
-    public void executeNumberCommand(int command, NumberCallback cb) {
-        numberCallbacks.put(command, cb);
-        executeCommand(command);
-    }
-
-    /**
-     * Call a standard, extended or navigation ZoomPlayer function
-     * @param command function type
-     * @param function function name
-     * @see <a href=https://inmatrix.com/zplayer/highlights/zpfunctions.shtml>ZoomPlayer Functions</a>
-     */
-    public void executeFunctionCommand(int command, final String function) {
-        stringCallbacks.put(command, new StringCallback() {
-            @Override
-            public void onStringReceived(String msg) {
-                if (function.equals(msg)) {
-                    Log.d(TAG, "executeFunctionCommand(" + function + ") - done");
-                } else {
-                    Log.w(TAG, "executeFunctionCommand(" + function + ") - received message for different function: " + msg);
-                }
-            }
-        });
-        executeCommand(command, function);
-    }
-
-    private String joinString(String ... strs) {
-        String rs = "";
-        for (String s: strs) {
-            rs += " " + s;
+    public void executeCommand(final int command, MessageListener l, String ... args) {
+        if (!connected) {
+            return;
         }
-        return rs;
-    }
-
-    private void executeCommand(final int command, String ... args) {
+        addMessageListener(command, l);
         final String arguments = joinString(args);
         pool.execute(new Runnable() {
             @Override
@@ -152,5 +119,19 @@ public class Connector {
                 writer.flush();
             }
         });
+    }
+
+    public void addMessageListener(int command, MessageListener l) {
+        if (l != null && listeners.get(command) == null) {
+            listeners.put(command, l);
+        }
+    }
+
+    private String joinString(String ... strs) {
+        String rs = "";
+        for (String s: strs) {
+            rs += " " + s;
+        }
+        return rs;
     }
 }

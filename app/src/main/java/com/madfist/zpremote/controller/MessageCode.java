@@ -1,5 +1,7 @@
 package com.madfist.zpremote.controller;
 
+import java.util.Locale;
+
 /**
  * Created by akoleszar on 2017.10.03..
  */
@@ -176,7 +178,7 @@ public final class MessageCode {
     public final static int CALL_ZP_FUNCTION = ZP_FUNCTION_CALLED;
     public final static int CALL_ZP_EXFUNCTION = ZP_EXFUNCTION_CALLED;
     public final static int CALL_ZP_SCANCODE = ZP_SCANCODE_CALLED;
-    public final static int CALL_ZP_NVFUCNTION = 5130;
+    public final static int CALL_ZP_NVFUNCTION = 5130;
     public final static int LIST_SHARED_ITEMS = SHARED_ITEMS_LIST;
     public final static int ADD_SHARED_ITEMS_TO_PLAYLIST = ADD_SHARED_ITEMS_ACK;
     public final static int SAVE_PLAYLIST = PLAYLIST_SAVED_ACK;
@@ -193,5 +195,14 @@ public final class MessageCode {
 
     public static String get(int num) {
         return String.format("%04d", num);
+    }
+
+    public static int timeInSeconds(String timeString) {
+        String[] units = timeString.split(":");
+        return Integer.parseInt(units[0]) * 3600 + Integer.parseInt(units[1]) * 60 + Integer.parseInt(units[2]);
+    }
+
+    public static String secondsToTime(int seconds) {
+        return String.format(Locale.US, "%02d:%02d:%02d", seconds/3600, (seconds%3600)/60, seconds%60);
     }
 }

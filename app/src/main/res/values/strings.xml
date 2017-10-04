@@ -4,10 +4,20 @@
     <string name="input_port">Port</string>
     <string name="button_connect">Connect</string>
     <string name="text_connected">Connected</string>
+    <string name="text_cannot_connect">Cannot connect</string>
+    <string name="text_not_connected">Not connected</string>
+    <string name="text_pos_dur_separator">/</string>
     <string name="button_play_pause">Play/Pause</string>
+    <string name="button_stop">Stop</string>
+    <string name="button_prev">Previous</string>
+    <string name="button_next">Next</string>
+    <string name="button_fullscreen">Fullscreen</string>
     <string name="button_control_bar">Control Bar</string>
     <string name="button_navigator">Navigator</string>
     <string name="button_up">Up</string>
     <string name="button_down">Down</string>
+    <string name="button_left">Left</string>
+    <string name="button_right">Right</string>
     <string name="button_enter">Enter</string>
+    <integer name="default_port">4769</integer>
 </resources>

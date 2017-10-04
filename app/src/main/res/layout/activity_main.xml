@@ -31,7 +31,7 @@
             android:inputType="number"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="4769"/>
+            android:text="@integer/default_port"/>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
@@ -46,46 +46,126 @@
             android:id="@+id/text_connection"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/holo_red_dark" />
+            android:textColor="@android:color/holo_red_dark"
+            android:text="@string/text_not_connected"/>
     </LinearLayout>
-    <Button
-        android:id="@+id/button_play_pause"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/text_filename"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/button_play_pause" />
+        android:gravity="center" />
+    <SeekBar
+        android:id="@+id/bar_position"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
+        android:orientation="horizontal"
+        android:gravity="center">
+        <TextView
+            android:id="@+id/text_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/text_pos_dur_separator"/>
+        <TextView
+            android:id="@+id/text_duration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <ImageButton
+            android:id="@+id/button_prev"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/button_prev"
+            android:src="@drawable/ic_skip_previous_black_24dp" />
+        <ImageButton
+            android:id="@+id/button_play_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/button_play_pause"
+            android:src="@drawable/ic_play_arrow_black_24dp" />
+        <ImageButton
+            android:id="@+id/button_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/button_stop"
+            android:src="@drawable/ic_stop_black_24dp" />
+        <ImageButton
+            android:id="@+id/button_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/button_next"
+            android:src="@drawable/ic_skip_next_black_24dp" />
+        <ImageButton
+            android:id="@+id/button_fullscreen"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:contentDescription="@string/button_fullscreen"
+            android:src="@drawable/ic_fullscreen_black_24dp" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <ImageButton
             android:id="@+id/button_control_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/button_control_bar" />
-        <Button
+            android:contentDescription="@string/button_control_bar"
+            android:src="@drawable/ic_info_outline_black_24dp" />
+        <ImageButton
             android:id="@+id/button_navigator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/button_navigator" />
+            android:contentDescription="@string/button_navigator"
+            android:src="@drawable/ic_folder_open_black_24dp" />
     </LinearLayout>
+    <ImageButton
+        android:id="@+id/button_up"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:contentDescription="@string/button_up"
+        android:src="@drawable/ic_keyboard_arrow_up_black_24dp" />
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-        <Button
-            android:id="@+id/button_up"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <ImageButton
+            android:id="@+id/button_left"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/button_up" />
-        <Button
-            android:id="@+id/button_down"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/button_down" />
-        <Button
+            android:contentDescription="@string/button_left"
+            android:src="@drawable/ic_keyboard_arrow_left_black_24dp" />
+        <ImageButton
             android:id="@+id/button_enter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/button_enter" />
+            android:contentDescription="@string/button_enter"
+            android:src="@drawable/ic_adjust_black_24dp" />
+        <ImageButton
+            android:id="@+id/button_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/button_right"
+            android:src="@drawable/ic_keyboard_arrow_right_black_24dp" />
     </LinearLayout>
+    <ImageButton
+        android:id="@+id/button_down"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:contentDescription="@string/button_down"
+        android:src="@drawable/ic_keyboard_arrow_down_black_24dp" />
 </LinearLayout>
