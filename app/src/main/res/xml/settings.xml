@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="settings_host"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/settings_host"
+        android:summary="@string/settings_host_summary" />
+    <EditTextPreference
+        android:key="settings_port"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/settings_port"
+        android:summary="@string/settings_port_summary" />
+</PreferenceScreen>

@@ -1,8 +1,12 @@
 package com.madfist.zpremote;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Handler;
+import android.preference.PreferenceManager;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,13 +24,16 @@ public class MainActivity extends Activity {
     private static final String TAG = "MainActivity";
     private ZoomPlayer zoomPlayer;
     private boolean userSeeking = false;
-    private String host;
-    private int port;
+    private SettingsFragment settingsFragment;
+    private Handler positionHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        if (BuildConfig.DEBUG) {
+            Log.setLogLevel(android.util.Log.DEBUG);
+        }
 
         zoomPlayer = new ZoomPlayer(zoomPlayerConnectorCallback);
         zoomPlayer.setFilenameListener(filenameListener);
@@ -34,22 +41,22 @@ public class MainActivity extends Activity {
         zoomPlayer.setPlayStateListener(playStateListener);
         zoomPlayer.setFullscreenStateListener(fullscreenStateListener);
 
-        if (savedInstanceState != null) {
-            Log.d(TAG, "onCreate() - savedInstance");
-            EditText hostEditText = findViewById(R.id.text_host);
-            hostEditText.setText(savedInstanceState.getString("host"));
-            EditText portEditText = findViewById(R.id.text_port);
-            portEditText.setText(savedInstanceState.getInt("port"));
-        }
+        settingsFragment = new SettingsFragment();
+        positionHandler = new Handler();
 
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+
+        final EditText hostEditText = findViewById(R.id.text_host);
+        hostEditText.setText(settings.getString(SettingsFragment.SETTINGS_HOST, ""));
+        final EditText portEditText = findViewById(R.id.text_port);
+        portEditText.setText(settings.getString(SettingsFragment.SETTINGS_PORT, Integer.toString(getResources().getInteger(R.integer.default_port))));
         Button connectButton = findViewById(R.id.button_connect);
         connectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText hostEditText = findViewById(R.id.text_host);
-                host = hostEditText.getText().toString();
-                EditText portEditText = findViewById(R.id.text_port);
-                port = Integer.parseInt(portEditText.getText().toString());
+
+                String host = hostEditText.getText().toString();
+                int port = Integer.parseInt(portEditText.getText().toString());
                 zoomPlayer.start(host, port);
             }
         });
@@ -150,17 +157,38 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        Log.d(TAG, "onSaveInstanceState");
-        super.onSaveInstanceState(outState);
-        outState.putString("host", host);
-        outState.putInt("port", port);
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_settings:
+                Log.d(TAG, "onOptionsItemSelected(Settings)");
+                getFragmentManager().beginTransaction().replace(android.R.id.content, settingsFragment).addToBackStack(null).commit();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (getFragmentManager().getBackStackEntryCount() == 0) {
+            super.onBackPressed();
+        } else {
+            getFragmentManager().popBackStack();
+        }
     }
 
     @Override
     protected void onPause() {
-        super.onPause();
+        Log.d(TAG, "onPause()");
+        positionHandler.removeCallbacks(positionUpdater);
         zoomPlayer.onPause();
+        super.onPause();
     }
 
     @Override
@@ -171,8 +199,9 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
+        positionHandler.removeCallbacks(positionUpdater);
         zoomPlayer.onDestroy();
+        super.onDestroy();
     }
 
     private void bindImageButton(int id, View.OnClickListener cl) {
@@ -225,6 +254,25 @@ public class MainActivity extends Activity {
         public void onMessageReceived(String msg) {
             Log.d(TAG, "filenameListener: " + msg);
             final String filename = msg.substring(msg.lastIndexOf('\\') + 1);
+            zoomPlayer.getDuration(new MessageListener(MessageListener.DO_NOT_KEEP) {
+                @Override
+                public void onMessageReceived(final String msg) {
+                    Log.d(TAG, "durationListener: " + msg);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            SeekBar seekBar = findViewById(R.id.bar_position);
+                            int max = MessageCode.msTimeInSeconds(msg);
+                            if (seekBar.getMax() != max) {
+                                seekBar.setMax(max);
+                                TextView durationText = findViewById(R.id.text_duration);
+                                durationText.setText(MessageCode.secondsToTime(max));
+                            }
+                        }
+                    });
+                }
+            });
+            zoomPlayer.getPosition();
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -245,19 +293,28 @@ public class MainActivity extends Activity {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    String[] times = msg.split(" / ");
                     SeekBar seekBar = findViewById(R.id.bar_position);
-                    int max = MessageCode.timeInSeconds(times[1]);
-                    if (seekBar.getMax() != max) {
-                        seekBar.setMax(max);
-                        TextView durationText = findViewById(R.id.text_duration);
-                        durationText.setText(times[1]);
-                    }
-                    seekBar.setProgress(MessageCode.timeInSeconds(times[0]));
+                    int seconds = MessageCode.msTimeInSeconds(msg);
+                    seekBar.setProgress(seconds);
                     TextView positionText = findViewById(R.id.text_position);
-                    positionText.setText(times[0]);
+                    positionText.setText(MessageCode.secondsToTime(seconds));
                 }
             });
+        }
+    };
+
+    private Runnable positionUpdater = new Runnable() {
+        @Override
+        public void run() {
+            TextView positionText = findViewById(R.id.text_position);
+            String pos = positionText.getText().toString();
+            if (!pos.isEmpty()) {
+                pos = MessageCode.incrementTime(pos);
+                positionText.setText(pos);
+                SeekBar seekBar = findViewById(R.id.bar_position);
+                seekBar.setProgress(MessageCode.timeInSeconds(pos));
+            }
+            positionHandler.postDelayed(this, 1000);
         }
     };
 
@@ -275,9 +332,11 @@ public class MainActivity extends Activity {
                         case 1: //STOPPED
                         case 2: //PAUSED
                             playPauseButton.setImageResource(R.drawable.ic_play_arrow_black_24dp);
+                            positionHandler.removeCallbacks(positionUpdater);
                             break;
                         case 3: //PLAYING
                             playPauseButton.setImageResource(R.drawable.ic_pause_black_24dp);
+                            positionHandler.post(positionUpdater);
                             break;
                     }
                 }

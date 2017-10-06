@@ -1,15 +1,17 @@
 package com.madfist.zpremote.controller;
 
-import android.util.Log;
 import android.util.SparseArray;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.Hashtable;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import com.madfist.zpremote.Log;
 
 /**
  * Created by akoleszar on 2017.10.02..
@@ -22,7 +24,7 @@ public class Connector {
         void onMessageReceived(String msg);
     }
 
-    private Socket socket;
+    private Socket socket = null;
     private Scanner reader;
     private PrintWriter writer;
     private ExecutorService pool = Executors.newCachedThreadPool();
@@ -30,14 +32,15 @@ public class Connector {
     private volatile boolean listening = false;
     private boolean connected = false;
     private SparseArray<MessageListener> listeners;
+    private Map<String, MessageListener> functionListeners;
     private Callback callback;
 
     public static final int CANNOT_CONNECT = 1;
 
     public Connector(Callback cb) {
         callback = cb;
-        socket = new Socket();
         listeners = new SparseArray<>();
+        functionListeners = new Hashtable<>();
     }
 
     public void connect(final String address, final int port) {
@@ -45,7 +48,7 @@ public class Connector {
             @Override
             public void run() {
                 try {
-                    socket.connect(new InetSocketAddress(address, port));
+                    socket = new Socket(address, port);
                     listening = true;
                     reader = new Scanner(socket.getInputStream());
                     writer = new PrintWriter(socket.getOutputStream());
@@ -66,12 +69,14 @@ public class Connector {
             @Override
             public void run() {
                 try {
-                    listening = false;
-                    reader.close();
-                    writer.close();
-                    socket.close();
-                    callback.onConnected(false);
-                    connected = false;
+                    if (socket != null && socket.isConnected()) {
+                        listening = false;
+                        writer.close();
+                        reader.close();
+                        socket.close();
+                        callback.onConnected(false);
+                        connected = false;
+                    }
                 } catch (IOException e) {
                     Log.e(TAG, "disconnect() failed - " + e.getMessage());
                 }
@@ -89,12 +94,24 @@ public class Connector {
                 while(listening) {
                     if (reader.hasNextLine()) {
                         String message = reader.nextLine();
+//                        Log.d(TAG, "listen(" + message + ")");
+                        MessageListener ml;
                         int messageCode = MessageCode.parse(message.substring(0,4));
-                        MessageListener ml = listeners.get(messageCode);
+                        if (MessageCode.isFunction(messageCode)) {
+//                            Log.d(TAG, "listen() - function[" + message.substring(4) + "]");
+                            ml = functionListeners.get(message.substring(4));
+                        } else {
+//                            Log.d(TAG, "listen() - command[" + messageCode + "]");
+                            ml = listeners.get(messageCode);
+                        }
                         if (ml != null) {
                             ml.onMessageReceived(message.substring(5));
                             if (!ml.keep) {
-                                listeners.remove(messageCode);
+                                if (MessageCode.isFunction(messageCode)) {
+                                    functionListeners.remove(message.substring(5));
+                                } else {
+                                    listeners.remove(messageCode);
+                                }
                             }
                         } else {
                             callback.onMessageReceived(message);
@@ -109,7 +126,7 @@ public class Connector {
         if (!connected) {
             return;
         }
-        addMessageListener(command, l);
+        addMessageListener(command, l, args);
         final String arguments = joinString(args);
         pool.execute(new Runnable() {
             @Override
@@ -121,9 +138,20 @@ public class Connector {
         });
     }
 
-    public void addMessageListener(int command, MessageListener l) {
+    public void addMessageListener(int command, MessageListener l, String ... args) {
+        String arguments = null;
+        if (args.length > 0) {
+            arguments = joinString(args);
+        }
+//        Log.d(TAG, "addMessageListener(" + command + arguments + ")");
         if (l != null && listeners.get(command) == null) {
-            listeners.put(command, l);
+            if (arguments != null && MessageCode.isFunction(command)) {
+//                Log.d(TAG, "addMessageListener() - function");
+                functionListeners.put(arguments, l);
+            } else {
+//                Log.d(TAG, "addMessageListener() - command");
+                listeners.put(command, l);
+            }
         }
     }
 

@@ -1,6 +1,6 @@
 package com.madfist.zpremote.controller;
 
-import android.util.Log;
+import com.madfist.zpremote.Log;
 
 /**
  * Created by akoleszar on 2017.10.02..
@@ -29,7 +29,7 @@ public class ZoomPlayer {
     }
 
     public void setPositionListener(MessageListener positionListener) {
-        connector.addMessageListener(MessageCode.POSITION_UPDATE, positionListener);
+        connector.addMessageListener(MessageCode.CURRENT_POSITION, positionListener);
     }
 
     public void start(String host, int port) {
@@ -54,12 +54,26 @@ public class ZoomPlayer {
         port = -1;
     }
 
+    public void getDuration(MessageListener durationListener) {
+        connector.executeCommand(MessageCode.SET_TIMELINE_UPDATES, null, "0");
+        connector.executeCommand(MessageCode.GET_CURRENT_DURATION, durationListener);
+    }
+
+    public void getPosition() {
+        connector.executeCommand(MessageCode.GET_CURRENT_POSITION, null);
+    }
+
     public void playPause() {
         executeZpFunction("fnPlay");
     }
 
     public void stop() {
-        executeZpFunction("fnStop");
+        executeZpFunction("fnStop", new MessageListener.Finisher() {
+            @Override
+            public void finish() {
+                getPosition();
+            }
+        });
     }
 
     public void prev() {
@@ -71,8 +85,12 @@ public class ZoomPlayer {
     }
 
     public void fullscreen() {
-        executeZpFunction("fnFullScreen");
-        connector.executeCommand(MessageCode.GET_FULLSCREEN_STATE, null);
+        executeZpFunction("fnFullScreen", new MessageListener.Finisher() {
+            @Override
+            public void finish() {
+                connector.executeCommand(MessageCode.GET_FULLSCREEN_STATE, null);
+            }
+        });
     }
 
     public void seek(int seconds) {
@@ -100,22 +118,38 @@ public class ZoomPlayer {
     }
 
     private void executeZpFunction(String function) {
-        connector.executeCommand(MessageCode.CALL_ZP_FUNCTION, getFunctionCalledChecker(function), function);
+        connector.executeCommand(MessageCode.CALL_ZP_FUNCTION, getFunctionCalledChecker(function, null), function);
     }
 
     private void executeZpExFunction(String function) {
-        connector.executeCommand(MessageCode.CALL_ZP_EXFUNCTION, getFunctionCalledChecker(function), function);
+        connector.executeCommand(MessageCode.CALL_ZP_EXFUNCTION, getFunctionCalledChecker(function, null), function);
     }
 
     private void executeZpNavFunction(String function) {
-        connector.executeCommand(MessageCode.CALL_ZP_NVFUNCTION, getFunctionCalledChecker(function), function);
+        connector.executeCommand(MessageCode.CALL_ZP_NVFUNCTION, getFunctionCalledChecker(function, null), function);
     }
 
-    private MessageListener getFunctionCalledChecker(final String function) {
+    private void executeZpFunction(String function, MessageListener.Finisher finisher) {
+        connector.executeCommand(MessageCode.CALL_ZP_FUNCTION, getFunctionCalledChecker(function,finisher), function);
+    }
+
+    private void executeZpExFunction(String function, MessageListener.Finisher finisher) {
+        connector.executeCommand(MessageCode.CALL_ZP_EXFUNCTION, getFunctionCalledChecker(function, finisher), function);
+    }
+
+    private void executeZpNavFunction(String function,MessageListener.Finisher finisher) {
+        connector.executeCommand(MessageCode.CALL_ZP_NVFUNCTION, getFunctionCalledChecker(function, finisher), function);
+    }
+
+    private MessageListener getFunctionCalledChecker(final String function, final MessageListener.Finisher finisher) {
         return new MessageListener(MessageListener.DO_NOT_KEEP) {
             @Override
             public void onMessageReceived(String msg) {
-                if (!msg.equals(function)) {
+                if (msg.equals(function)) {
+                    if (finisher != null) {
+                        finisher.finish();
+                    }
+                } else {
                     Log.w(TAG, "getFunctionCalledChecker(" + function + ") - got: " + msg);
                 }
             }

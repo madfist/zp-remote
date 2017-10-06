@@ -66,15 +66,18 @@
         <TextView
             android:id="@+id/text_position"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textSize="16pt" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/text_pos_dur_separator"/>
+            android:text="@string/text_pos_dur_separator"
+            android:textSize="16pt" />
         <TextView
             android:id="@+id/text_duration"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:textSize="16pt" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"

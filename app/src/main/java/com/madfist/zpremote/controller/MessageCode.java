@@ -79,7 +79,7 @@ public final class MessageCode {
     public final static int VIRTUAL_KEYBOARD_INPUT_RESULT = 4000;
     public final static int ZP_FUNCTION_CALLED = 5100;
     public final static int ZP_EXFUNCTION_CALLED = 5110;
-    public final static int ZP_SCANCODE_CALLED = 5220;
+    public final static int ZP_SCANCODE_CALLED = 5120;
     public final static int SHARED_ITEMS_LIST = 6000;
     public final static int ADD_SHARED_ITEMS_ACK = 6010;
     public final static int PLAYLIST_SAVED_ACK = 6020;
@@ -189,12 +189,26 @@ public final class MessageCode {
     public final static int GET_CURRENT_SCHEDULE_LISR = CURRENT_SCHEDULE_LIST;
     public final static int SET_NEW_SCHEDULE_LIST = NUMBER_OF_SCHEDULE_ENTRIES_SET;
 
-    public static int parse(String num) {
-        return Integer.parseInt(num);
+    public static int parse(String code) {
+        return Integer.parseInt(code);
     }
 
-    public static String get(int num) {
-        return String.format("%04d", num);
+    public static String get(int code) {
+        return String.format("%04d", code);
+    }
+
+    public static boolean isFunction(int code) {
+        return  code == MessageCode.ZP_FUNCTION_CALLED ||
+                code == MessageCode.ZP_EXFUNCTION_CALLED ||
+                code == MessageCode.ZP_SCANCODE_CALLED;
+    }
+
+    public static int msTimeInSeconds(String msTime) {
+        return Integer.parseInt(msTime) / 1000;
+    }
+
+    public static String secondsToMsTime(int seconds) {
+        return Integer.toString(seconds * 1000);
     }
 
     public static int timeInSeconds(String timeString) {
@@ -209,6 +223,14 @@ public final class MessageCode {
     }
 
     public static String secondsToTime(int seconds) {
-        return String.format(Locale.US, "%02d:%02d:%02d", seconds/3600, (seconds%3600)/60, seconds%60);
+        if (seconds >= 3600) {
+            return String.format(Locale.US, "%02d:%02d:%02d", seconds/3600, (seconds%3600)/60, seconds%60);
+        } else {
+            return String.format(Locale.US, "%02d:%02d", seconds/60, seconds%60);
+        }
+    }
+
+    public static String incrementTime(String seconds) {
+        return secondsToTime(timeInSeconds(seconds) + 1);
     }
 }
