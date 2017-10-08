@@ -7,7 +7,7 @@ import java.util.Locale;
  */
 public abstract class MessageListener {
     public interface Finisher {
-        void finish();
+        void finish(String msg);
     }
     public static final boolean KEEP = true;
     public static final boolean DO_NOT_KEEP = false;

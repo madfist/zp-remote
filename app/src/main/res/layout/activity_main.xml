@@ -108,6 +108,9 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/button_next"
             android:src="@drawable/ic_skip_next_black_24dp" />
+        <Space
+            android:layout_width="12dp"
+            android:layout_height="wrap_content" />
         <ImageButton
             android:id="@+id/button_fullscreen"
             android:layout_width="wrap_content"
@@ -121,17 +124,69 @@
         android:orientation="horizontal"
         android:gravity="center">
         <ImageButton
+            android:id="@+id/button_mute"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/button_mute"
+            android:src="@drawable/ic_volume_mute_black_24dp" />
+        <Space
+            android:layout_width="12dp"
+            android:layout_height="wrap_content" />
+        <ImageButton
+            android:id="@+id/button_volume_down"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/button_volume_down"
+            android:src="@drawable/ic_volume_down_black_24dp" />
+        <TextView
+            android:id="@+id/text_volume"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minEms="3"
+            android:textSize="10pt"
+            android:textAlignment="center"/>
+        <ImageButton
+            android:id="@+id/button_volume_up"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/button_volume_up"
+            android:src="@drawable/ic_volume_up_black_24dp" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+        <ImageButton
             android:id="@+id/button_control_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/button_control_bar"
             android:src="@drawable/ic_info_outline_black_24dp" />
+        <Space
+            android:layout_width="12dp"
+            android:layout_height="wrap_content" />
         <ImageButton
             android:id="@+id/button_navigator"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/button_navigator"
             android:src="@drawable/ic_folder_open_black_24dp" />
+        <Space
+            android:layout_width="12dp"
+            android:layout_height="wrap_content" />
+        <ImageButton
+            android:id="@+id/button_audio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/button_audio"
+            android:src="@drawable/ic_audiotrack_black_24dp" />
+        <ImageButton
+            android:id="@+id/button_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/button_subtitle"
+            android:src="@drawable/ic_closed_caption_black_24dp" />
     </LinearLayout>
     <ImageButton
         android:id="@+id/button_up"

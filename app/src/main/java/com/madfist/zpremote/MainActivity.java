@@ -40,6 +40,7 @@ public class MainActivity extends Activity {
         zoomPlayer.setPositionListener(positionListener);
         zoomPlayer.setPlayStateListener(playStateListener);
         zoomPlayer.setFullscreenStateListener(fullscreenStateListener);
+        zoomPlayer.setVolumeListener(volumeListener);
 
         settingsFragment = new SettingsFragment();
         positionHandler = new Handler();
@@ -117,6 +118,41 @@ public class MainActivity extends Activity {
             @Override
             public void onClick(View view) {
                 zoomPlayer.fullscreen();
+            }
+        });
+
+        bindImageButton(R.id.button_mute, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                zoomPlayer.mute();
+            }
+        });
+
+        bindImageButton(R.id.button_volume_down, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                zoomPlayer.volumeDown();
+            }
+        });
+
+        bindImageButton(R.id.button_volume_up, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                zoomPlayer.volumeUp();
+            }
+        });
+
+        bindImageButton(R.id.button_audio, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                zoomPlayer.changeAudio();
+            }
+        });
+
+        bindImageButton(R.id.button_subtitle, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                zoomPlayer.changeSubtitle();
             }
         });
 
@@ -273,6 +309,8 @@ public class MainActivity extends Activity {
                 }
             });
             zoomPlayer.getPosition();
+            zoomPlayer.getVolume();
+            zoomPlayer.initAudioAndSubtitles();
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -358,6 +396,19 @@ public class MainActivity extends Activity {
                     } else {
                         fullscreenButton.setImageResource(R.drawable.ic_fullscreen_black_24dp);
                     }
+                }
+            });
+        }
+    };
+
+    private MessageListener volumeListener = new MessageListener(MessageListener.KEEP) {
+        @Override
+        public void onMessageReceived(final String msg) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    TextView volumeText = findViewById(R.id.text_volume);
+                    volumeText.setText(msg + "%");
                 }
             });
         }
